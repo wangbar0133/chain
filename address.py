@@ -1,21 +1,35 @@
-from eth_account import Account
+from ethereum import utils
+import os, sys
 
-from web3 import Web3
+# generate EOA with appendix 1b1b
+def generate_eoa1():
+    priv = utils.sha3(os.urandom(4096))
+    addr = utils.checksum_encode(utils.privtoaddr(priv))
 
-def createNewETHWallet():
-    """用于生成尾号为<>的地址"""
-    while True:
-        account = Account.create()
-        privateKey = account._key_obj
-        publicKey = privateKey.public_key
-        address = publicKey.to_checksum_address()
-        # print(address[-4::])
-        if address[-4::] == "525B":
-            print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-            break
-    print(privateKey)
-    print(publicKey)
-    print(address) 
+    while not addr.lower().endswith("1b1b"):
+        priv = utils.sha3(os.urandom(4096))
+        addr = utils.checksum_encode(utils.privtoaddr(priv))
 
-if __name__ == "__main__":
-    createNewETHWallet()
+    print('Address: {}\nPrivate Key: {}'.format(addr, priv.hex()))
+
+
+# generate EOA with the ability to deploy contract with appendix 1b1b
+def generate_eoa2():
+    priv = utils.sha3(os.urandom(4096))
+    addr = utils.checksum_encode(utils.privtoaddr(priv))
+
+    while not (utils.decode_addr(utils.mk_contract_address(addr, 0)).endswith("61") and utils.decode_addr(utils.mk_contract_address(addr, 0)).startswith("fd")):
+        priv = utils.sha3(os.urandom(4096))
+        addr = utils.checksum_encode(utils.privtoaddr(priv))
+
+
+    print('Address: {}\nPrivate Key: {}'.format(addr, priv.hex()))
+
+
+if __name__  == "__main__":
+    if sys.argv[1] == "1":
+        generate_eoa1()
+    elif sys.argv[1] == "2":
+        generate_eoa2()
+    else:
+        print("Please enter valid argument")
