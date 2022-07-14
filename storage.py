@@ -1,9 +1,19 @@
+import os
+import sys
 from web3 import Web3
 
-# 读取slot
+if __name__ == "__main__":
+    address = sys.argv[1]
+    slot_loc = sys.argv[2]
+    
+    # 从环境变量获取geth api
+    GETHAPI = os.environ.get('GETHAPI')
 
-w3 = Web3(Web3.HTTPProvider('http://123.60.36.208:8545/'))
+    # 初始化Web3对象
+    w3 = Web3(Web3.HTTPProvider(GETHAPI))
 
-value = w3.eth.getStorageAt("0x21ac0df70A628cdB042Dde6f4Eb6Cf49bDE00Ff7", 2).hex()
+    # 读取slot
+    value = w3.eth.getStorageAt(address, slot_loc).hex()
 
-print(value)
+    print("hex:  " + value)
+    print("int:  " + int(value, 16).__str__())
